@@ -99,7 +99,7 @@ urlcolor=black
 
 This homework should be uploaded by {\bfseries Friday, March 17, 2023} as a pdf file on the website
 \begin{center}
-	\url{http://pierre.gaillard.me/teaching/mva.php}
+	\url{http://pierre.gaillard.me/teaching/mva2023.php}
 \end{center}
 The password to upload is \texttt{mva2023}. The penalty scale is minus two points (on the final grade over 20 points) for every day of delay. The homework can be done alone or in groups of two students. The code can be done in any langage (\texttt{python}, \texttt{R}, \texttt{matlab},\dots) and should not be returned but the results and the figures must be included into the pdf report. 
 
@@ -159,16 +159,16 @@ First, the environment chooses a sequence of convex and $G$-Lipschitz loss funct
 			\]
 	\question What regret do we obtain by optimizing the parameters $\delta$ and $\eta$? 
 
-	\question In this question, we perform some simulations to assess the empirical performance of the algorithm and compare it with standard Online Gradient Descent. Let $d,T \geq 1$. We define $\theta^*_i = \frac{1}{2i}$, and  let for $t=1,\dots, T$, $x_t \sim \cN(0,I_d)$ and $y_t = \langle \theta^*, x_t \rangle + \epsilon_t$, with $\epsilon_t \sim \cN(0,.1)$. At each round, the learner is ask to form $\theta_t \in \R^d$ and is evaluated with the loss $\ell_t(\theta) = (\langle\theta,x_t\rangle - y_t)^2$. 
+	\question In this question, we perform some simulations to assess the empirical performance of the algorithm and compare it with standard Online Gradient Descent. Let $d,T \geq 1$. We define $\theta^*_i = \frac{1}{2i}$, and  let for $t=1,\dots, T$, $x_t \sim \cN(0,I_d)$ and $y_t = \langle \theta^*, x_t \rangle + \epsilon_t$, with $\epsilon_t \sim \cN(0,.1)$. At each round, the learner is asked to form $\theta_t \in \R^d$ and is evaluated with the loss $\ell_t(\theta) = (\langle\theta,x_t\rangle - y_t)^2$. 
 
 	\begin{parts}
-		\part Let $d = 2$. Implement OGD with and without gradients for $\Theta = \{\|\theta\|\leq 1\}$. Plot the cumulative regrets obtained for theoretical values of $\eta$ and $\delta$ for $n=1,\dots,1000$. Add standard deviation over obtained over 100 runs of the experiment to the plots.
-		\part Fix $n=1000$. And plot the regret with standard deviation as a function of $d=1,\dots,10$. What do you observe?
+		\part Let $d = 2$. Implement OGD with and without gradients for $\Theta = \{\|\theta\|\leq 1\}$. Plot the cumulative regrets obtained for theoretical values of $\eta$ and $\delta$ for $n=1,\dots,1000$. Add standard deviation obtained over 100 runs of the experiment to the plots.
+		\part Fix $n=1000$. Plot the regret with standard deviation as a function of $d=1,\dots,10$. What do you observe?
 	\end{parts}
 
 \end{questions}
 
-\section*{Part 2. }
+\input{bandit_identification}
 
  % \bibliographystyle{plain}
  % \bibliography{biblio}
