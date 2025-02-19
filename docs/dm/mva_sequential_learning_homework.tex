@@ -1,0 +1,125 @@
+% \documentclass[answers,11pt]{exam}
+\documentclass[11pt]{exam}
+
+
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{geometry}
+\usepackage{dsfont}
+\usepackage{url}
+\usepackage{amsthm,amsmath,amssymb}
+\usepackage{graphicx}
+% \usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage{cancel}
+\usepackage[ruled]{algorithm2e}
+\usepackage{listings}
+\lstset{language=python,basicstyle={\ttfamily}}
+
+\hypersetup{
+colorlinks,
+citecolor=blue,
+filecolor=blue,
+linkcolor=blue,
+urlcolor=black
+}
+% \pagestyle{fancy}
+\geometry{verbose,tmargin=1.0in,bmargin=1.0in,lmargin=0.5in,rmargin=0.5in}
+\setlength{\headheight}{15pt}
+% \firstpageheadrule
+\runningheadrule
+\shadedsolutions
+
+\newcommand{\thiscoursecode}{Sequential Learning}
+\newcommand{\examname}{Home Assignment}
+\newcommand{\thisprof}{Pierre Gaillard}
+\newcommand{\remy}{R\'emy Degenne}
+\newcommand{\me}{Pierre Gaillard}
+\newcommand{\thisterm}{MVA 2024-25}
+\newcommand{\website}{\url{https://sequential-learning.github.io/}}
+\newcommand{\email}{pierre.gaillard@inria.fr}
+\newcommand{\emailremy}{remy.degenne@inria.fr}
+
+\usepackage{newfloat} % changer les noms des legendes
+\DeclareFloatingEnvironment{algo}
+\renewcommand{\algoname}{Algorithm}%
+
+\DeclareFloatingEnvironment{setting}
+\renewcommand{\settingname}{Setting}%
+
+% Headers
+\chead{\thiscoursename }
+\lhead{\thisterm}
+\rhead{\thisprof}
+
+\firstpageheader{MVA 2024-25}{}{\thisprof, \  \remy}
+\runningheader{MVA 2024-25}{\examname}{\thisprof, \  \remy}
+
+\setenumerate{itemsep=0pt,topsep=-2pt}
+\setitemize{label={--},nosep,nolistsep,topsep=-2pt}
+
+%%%%%% TITLE %%%%%%
+\newcommand{\notefront}{
+%\pagenumbering{roman}
+\begin{center}
+
+\hrule \vspace*{20pt}
+\textbf{\huge{\textsc{\thiscoursecode}}}{\huge \par} 
+
+\smallskip
+{\large{\textsc{\examname}}}\\ \vspace{20pt}
+
+\hrule \vspace*{20pt}
+
+  \end{center}
+  }
+
+
+\setlength\parindent{0pt}
+
+% Commandes de pierre
+\newcommand{\indic}{\mathds{1}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\renewcommand{\S}{\mathbb{S}}
+\newcommand{\cX}{\mathcal{X}}
+\newcommand{\cZ}{\mathcal{Z}}
+\newcommand{\cN}{\mathcal{N}}
+\DeclareMathOperator*{\Proj}{Proj}
+
+% Begin Document
+\begin{document}
+  % Notes front
+  \notefront
+  % Table of Contents and List of Figures
+  % Abstract
+
+
+This homework should be uploaded by {\bfseries Friday, March 21, 2025} as on the website
+\begin{center}
+	\url{https://sequential-learning.github.io/}
+\end{center}
+The password to upload is \texttt{mva2025}. The penalty scale is minus two points (on the final grade over 20 points) for every day of delay.
+The homework should consist of a single pdf file, together with a single code file. If the upload does not succeed (for some reason), send it by email to \email and \emailremy but only after you have tried the upload.
+
+It can be done alone or in groups of two students. The code can be done in any language (\texttt{python}, \texttt{R}, \texttt{matlab},\dots).
+The code file (e.g., notebook python, R) does not need to be delivered but the results and the figures must be included into the pdf report. The report can be written in English or in French. 
+
+\medskip
+All questions require a proper mathematical justification or derivation (unless otherwise stated), but most questions can be answered concisely in just a few lines. No question should require lengthy or tedious derivations or calculations.
+
+
+
+\section*{Part 1. TODO}
+
+\input{bandit_identification}
+
+ % \bibliographystyle{plain}
+ % \bibliography{biblio}
+
+
+
+
+\end{document}
