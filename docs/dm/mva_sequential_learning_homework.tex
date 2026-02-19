@@ -1,64 +1,57 @@
-% \documentclass[answers,11pt]{exam}
 \documentclass[11pt]{exam}
-
-
-\usepackage[T1]{fontenc}
-\usepackage[latin9]{inputenc}
+\usepackage{amsmath,amssymb,amsthm,bbm}
 \usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
 \usepackage{dsfont}
 \usepackage{url}
-\usepackage{amsthm,amsmath,amssymb}
-\usepackage{graphicx}
-% \usepackage{fancyhdr}
-\usepackage{enumitem}
-\usepackage{color}
-\usepackage{hyperref}
-\usepackage{cancel}
 \usepackage[ruled]{algorithm2e}
-\usepackage{listings}
-\lstset{language=python,basicstyle={\ttfamily}}
 
-\hypersetup{
-colorlinks,
-citecolor=blue,
-filecolor=blue,
-linkcolor=blue,
-urlcolor=black
-}
-% \pagestyle{fancy}
 \geometry{verbose,tmargin=1.0in,bmargin=1.0in,lmargin=0.5in,rmargin=0.5in}
 \setlength{\headheight}{15pt}
 % \firstpageheadrule
 \runningheadrule
-\shadedsolutions
+
+\usepackage{newfloat} % changer les noms des legendes
+\DeclareFloatingEnvironment{algo}
+\renewcommand{\algoname}{Algorithm}%
+\DeclareFloatingEnvironment{setting}
+\renewcommand{\settingname}{Setting}%
+
 
 \newcommand{\thiscoursecode}{Sequential Learning}
 \newcommand{\examname}{Home Assignment}
 \newcommand{\thisprof}{Pierre Gaillard}
 \newcommand{\remy}{R\'emy Degenne}
 \newcommand{\me}{Pierre Gaillard}
-\newcommand{\thisterm}{MVA 2024-25}
+\newcommand{\thisterm}{MVA 2025-26}
 \newcommand{\website}{\url{https://sequential-learning.github.io/}}
 \newcommand{\email}{pierre.gaillard@inria.fr}
 \newcommand{\emailremy}{remy.degenne@inria.fr}
 
-\usepackage{newfloat} % changer les noms des legendes
-\DeclareFloatingEnvironment{algo}
-\renewcommand{\algoname}{Algorithm}%
+\lstset{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+  commentstyle=\color{green!60!black},
+  showstringspaces=false,
+  frame=single,
+  breaklines=true
+}
 
-\DeclareFloatingEnvironment{setting}
-\renewcommand{\settingname}{Setting}%
+\setlength{\parindent}{0pt}
+\geometry{margin=1in}
+
 
 % Headers
 \chead{\thiscoursename }
 \lhead{\thisterm}
 \rhead{\thisprof}
 
-\firstpageheader{MVA 2024-25}{}{\thisprof, \  \remy}
-\runningheader{MVA 2024-25}{\examname}{\thisprof, \  \remy}
-
-\setenumerate{itemsep=0pt,topsep=-2pt}
-\setitemize{label={--},nosep,nolistsep,topsep=-2pt}
+\firstpageheader{\thisterm}{}{\thisprof, \  \remy}
+\runningheader{\thisterm}{\examname}{\thisprof, \  \remy}
 
 %%%%%% TITLE %%%%%%
 \newcommand{\notefront}{
@@ -77,17 +70,10 @@ urlcolor=black
   }
 
 
-\setlength\parindent{0pt}
-
-% Commandes de pierre
-\newcommand{\indic}{\mathds{1}}
-\newcommand{\R}{\mathbb{R}}
-\newcommand{\E}{\mathbb{E}}
-\renewcommand{\S}{\mathbb{S}}
-\newcommand{\cX}{\mathcal{X}}
-\newcommand{\cZ}{\mathcal{Z}}
-\newcommand{\cN}{\mathcal{N}}
-\DeclareMathOperator*{\Proj}{Proj}
+% \title{Homework -- Online Learning and Bandits}
+% \date{}
+% \begin{document}
+% \maketitle
 
 % Begin Document
 \begin{document}
@@ -97,39 +83,267 @@ urlcolor=black
   % Abstract
 
 
-This homework should be uploaded by {\bfseries Friday, March 21, 2025} on the website
+This homework should be uploaded by {\bfseries Friday, March 20, 2026} on the website
 \begin{center}
-	\url{https://sequential-learning.github.io/}
+	\website
 \end{center}
-The password to upload is {\bfseries mva2025}. The penalty scale is minus two points (on the final grade over 20 points) for every day of delay. If the upload does not succeed (for some reason), send it by email to \email{} and \emailremy{} but only after you have tried the upload. It can be done alone or in groups of two students. The report can be written in English or in French.
+The password to upload is \texttt{mva2026}. The penalty scale is minus two points (on the final grade over 20 points) for every day of delay.
+The homework should consist of a single pdf file, together with an optional single code file. If the upload does not succeed (for some reason), send it by email to \email{} and \emailremy{} but only after you have tried the upload.
 
-\medskip
-The homework should consist of a {\bfseries single jupyter notebook for Part 1}, together with  a {\bfseries single pdf report for Part 2} (the code should not be returned for this part). 
-
- 
+It can be done alone or in groups of two students. The code can be done in any language (\texttt{python}, \texttt{R}, \texttt{matlab},\dots).
+The code file (e.g., notebook python, R) does not need to be delivered but the results and the figures must be included into the pdf report. The report can be written in English or in French. 
 
 \medskip
 All questions require a proper mathematical justification or derivation (unless otherwise stated), but most questions can be answered concisely in just a few lines. No question should require lengthy or tedious derivations or calculations.
 
 
+\section*{Part 1. Blackwell approachability and Calibration}
 
-\section*{Part 1. Portfolio selection}
+The goal of this homework is to use Online Gradient Descent to produce calibrated weather forecasts. 
 
-Complete the notebook 
+\subsection*{Blackwell Approachability via Online Gradient Descent}
+
+First, we define the notion of Blackwell approachability that generalizes regret minimization to multi-objective and unfolds as follows. Let $\mathcal A$ be a finite action set, and $(b_t)_{1\leq t\leq T}$ an arbitrary sequence of observations. At each round $t=1,\dots,T$, the learner chooses $a_t \in \mathcal A$, the nature reveals $b_t \in \mathcal B$, the learner receives a vector payoff
+    $
+    	g(a_t,b_t) \in \mathbb{R}^d.
+    $
+We define the average payoff:
+\[
+\bar g_T = \frac{1}{T}\sum_{t=1}^T g(a_t,b_t).
+\]
+Let $C \subseteq \mathbb{R}^d$ be a closed convex set. We say that $C$ is \emph{approachable} if there exists a strategy such that
+$
+\inf_{x \in C} \big\| \bar g_T - x \big\|_2 \to 0
+$ as $T \to \infty$. By Blackwell's approachability theorem (admitted here) $C$ is approachable if and only if 
+\begin{equation}
+    \forall \theta \in \mathbb{R}^d, \quad \min_{a \in \mathcal{A}} \sup_{b \in \mathcal{B}} \langle \theta, g(a,b) \rangle \leq \sup_{c \in C} \langle \theta , c \rangle  \,.
+    \label{eq:blackwell} \tag{$\ast$}
+\end{equation}
+
+\begin{questions}
+	\question Assume that at each round, each action $a \in \mathcal{A}$ is associated with a loss $\ell(a,b_t) \in \mathbb{R}$. By properly choosing $d \geq 1$, $C \subseteq \mathbb{R}^d$ and $g:\mathcal{A} \to \mathbb{R}^d$, show that approachability implies no-regret: 
+	\[
+		\sup_{a \in \mathcal{A}} \sum_{t=1}^T \ell(a_t,b_t) - \ell_t(a,b_t) = o(T) \qquad \text{ as } T\to \infty\,.
+	\] 
+
+\fullwidth{
+We consider the target set
+$
+C = \{0\}
+$ and assume it is approachable.
+The goal is to design a strategy such that $\|\bar g_T\|_2 \to 0$.
+Define losses
+\[
+\ell_t(\theta) = \langle \theta, g(a_t,b_t)\rangle,
+\quad \theta \in \Theta = \{\theta \in \mathbb R^d : \|\theta\|_2 \le 1\}.
+\]
+%
+Let $\theta_1 \in \Theta$ and $\theta_{t+1} = \mathrm{Proj}_\Theta(\theta_t - \eta_t g(a_t,b_t))$ be the iterates obtained by Online Gradient Descent with $\eta_t = \frac{1}{\sqrt{t}}$. 
+At each round, the learner chooses
+\[
+a_t
+\in
+\arg\min_{a \in \mathcal A}
+\sup_{b}
+\langle \theta_t, g(a,b)\rangle.
+\]
+}
+
+% \textbf{Question 2.}
+% State and prove the standard regret bound for Online Mirror Descent
+% with Euclidean regularizer:
+% \[
+% \sum_{t=1}^T
+% \langle u_t - u, g(a_t,b_t) \rangle
+% \le
+% \frac{\|u\|_2^2}{2\eta}
+% +
+% \frac{\eta}{2}
+% \sum_{t=1}^T
+% \|g(a_t,b_t)\|_2^2.
+% \]
+
+% \medskip
+\question Show that
+$
+\langle \theta_t, g(a_t,b_t)\rangle
+\le 0.
+$
+
+\question 
+Deduce that for any $\theta \in  \Theta$,
+$
+\sum_{t=1}^T
+\langle \theta, g(a_t,b_t) \rangle
+\le
+O(\sqrt{T}).
+$
+\question  Conclude that
+$
+\|\bar g_T\|_2
+=
+O(T^{-1/2}).
+$
+
+\fullwidth{
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Application to Calibration}
+
+Let $N = 10$. Consider a sequence $y_1, \dots, y_T \in \{0,1\}$.  
+At each round $t$, the player outputs a forecast
+$
+p_t \in \mathcal{P} = \left\{0, \frac{1}{N}, \frac{2}{N}, \dots, 1 \right\},
+$
+which is intended to predict the probability that the next outcome to be $1$.
+For instance, one may think of a weather forecaster who, each day, announces the probability of rain for the following day. The realized outcome is $y_t = 1$ if it rains and $y_t = 0$ otherwise.
+
+The forecaster’s performance is evaluated using the notion of \emph{calibration}. Informally, calibration requires that for every forecast value $p \in \mathcal{P}$, the empirical frequency of rain 
+\[
+\rho_T(p) := \frac{\sum_{t=1}^T y_t \mathds{1}\{p_t = p\}}{\sum_{t=1}^T \mathds{1}\{p_t = p\}}
+\]
+on the days when the forecaster predicted a probability $p$ should itself be close to $p$. In other words, among all days where the forecast was, say, $0.7$, it should rain on approximately $70\%$ of those days.
+
+
+The forecaster is \emph{calibrated} if for every $p \in \mathcal{P}$,
+\[
+\Big( \frac{1}{T} \sum_{t=1}^T \mathds{1}\{p_t = p\}\Big)  \left| \rho_T(p) - p
+\right|
+\longrightarrow 0.
+\]
+
+Consider the calibration payoff
+\[
+g_i(p_t,y_t)
+=
+\mathbbm{1}\{p_t=i/N\}(y_t - p_t).
+\]
+}
+\question
+Explain how the previous algorithm yields a calibrated
+forecasting strategy with rate $O(1/\sqrt{T})$.
+
+\fullwidth{
+\subsection*{Application to rain forecasts}
+
+Download rain data from ENS Paris Saclay (Gif-sur-Yvette). }
+\begin{lstlisting}
+from meteostat import Daily, Point
+from datetime import datetime
+
+location = Point(48.709, 2.166)
+start = datetime(2010, 1, 1)
+end = datetime(2025, 12, 31)
+data = Daily(grenoble, start, end).fetch()
+data["rain"] = (data["prcp"] > 0).astype(int)
+\end{lstlisting}
+
+\question Apply the previous algorithm to produce rain forecasts in $\mathcal{P}$. Plot the evolution of the Brier score 
+\[
+	\sum_{p \in \mathcal{P}} \Big( \rho_t(p) - p \Big)^2 \Big( \frac{1}{t} \sum_{s=1}^t \mathds{1}\{p_s = p\}\Big)
+\]
+as a function of $t$.
+\end{questions}
+
+
+\section*{Part 2. Stochastic Best Arm Identification}
+\label{sec:best_arm_identification}
+
+In the best arm identification setting, an algorithm interacts with the environment in the standard bandit way: at each time, it selects an arm, then observes the corresponding reward.
+The goal of the algorithm is to find the arm with highest mean, as quickly as possible.
+
+
+\begin{setting}[ht!]
 \begin{center}
-	\url{https://sequential-learning.github.io/docs/dm/notebook_portfolio.ipynb}
+\fbox{
+    \begin{minipage}{.95\textwidth}
+    	Each arm $k \in [K]$ has a reward distribution $\mathcal \nu_k$ with mean $\mu_k$. There is a unique best arm $k^* = \arg\max_k \mu_k$.\\[2pt]
+        At each round $t=1,\dots,\tau$
+        \begin{itemize}
+            \item The player chooses an arm $k_t \in [K]$,
+            \item The player observes a reward $X_t^{k_t} \sim \mathcal \nu_{k_t}$, independent of all other rewards.
+        \end{itemize}
+        At the stopping time $\tau$, the algorithm recommends an arm $\hat{k} \in [K]$
+    \end{minipage}}
 \end{center}
-Data is available at
-\begin{center}
-	\url{https://sequential-learning.github.io/docs/dm/data_portfolio.zip}
-\end{center}
+\caption{Best arm identification}
+\label{fig:setting_stochastic}
+\end{setting}
 
-\input{bandit_identification}
+A good algorithm should make few mistakes and stop quickly. With the notations of Figure~\ref{fig:setting_stochastic}, the probability of mistake of the algorithm on problem $\nu$ is $\mathbb{P}_\nu(\hat{k} \ne k^*)$. The possibly random time at which it stops and returns an answer is $\tau$.
 
- % \bibliographystyle{plain}
- % \bibliography{biblio}
+Notations: $N_t^k = \sum_{s=1}^t \mathbb{I}\{k_s = k\}$ is the number of times arm $k$ was sampled up to time $t$. $\hat{\mu}_{t,k} = \frac{1}{N_t^k} \sum_{s=1}^t \mathbb{I}\{k_s = k\} X_s^{k_s}$ is the empirical mean of arm $k$.
+
+\paragraph{Fixed Budget}
+\label{par:fixed_budget}
+
+In \emph{fixed budget} best arm identification, we are given a time $T$ and set $\tau = T$. That is, the algorithm can sample a total number of $T$ arms ($T$ known in advance), then must stop and return an answer. We are interested in algorithms with low probability of mistake.
+
+We suppose in this fixed budget section that the distributions of the arms all have support in $[0,1]$.
+
+\begin{questions}
 
 
+\question \emph{Uniform sampling.} The uniform sampling algorithm pulls all arms $T/K$ times (we suppose that $T$ is a multiple of $K$).
+%In this questions, we take $K = 10$, $T = 1000$ and all arm distributions are Gaussian with variance 1 and means $(1, 0.8, 0.6, 0.6, \ldots, 0.6)$. 
+\begin{parts}
+	\part Prove that the probability of error of uniform sampling is at most $2 \sum_{k=2}^K \exp(-\frac{T}{K} \frac{\Delta_k^2}{8})$, where $\Delta_k = \mu_{k^*} - \mu_k$.
+\end{parts}
 
+\begin{algorithm}[!h]
+    \SetAlgoLined
+    Input: budget $T$, number of arms $K$.\\
+    Let $A_1 = \{1, \ldots, K\}$, $\overline{\log}(K) = \frac{1}{2} + \sum_{k=2}^K \frac{1}{k}$, $n_0 = 0$ and for $j \in \{1, \ldots, K-1\}$,
+    \begin{align*}
+    n_j = \left\lceil \frac{1}{\overline{\log}(K)}\frac{T-K}{K+1-j}\right\rceil \: .
+    \end{align*}
+    \For{each phase $j = 1, 2, \ldots, K - 1$}{
+        For each $i \in A_j$, select arm $i$ during $n_j - n_{j - 1}$ rounds. \\
+        Let $A_{j+1} = A_j \setminus \arg\min_{k \in A_j} \hat{X}_{k, n_j}$, where $\hat{X}_{k, n_j}$ is the empirical mean of arm $k$ after $n_j$ observations. (we only remove one element from $A_j$; if there is a tie, select randomly the arm to dismiss among the worst arms).
+    }
+    \caption{Successive rejects}
+    \label{alg:successive_rejects}
+\end{algorithm}
 
+\question The \emph{Successive Rejects} algorithm is described in Algorithm~\ref{alg:successive_rejects}. In each phase, it samples all arms uniformly, and at the end of a phase it discards the worse arm.
+\begin{parts}
+    \part Give a bound on the probability that the best arm is discarded at the end of the first phase.
+    \part Let $B = \mathbb{I}\{\hat{k} \ne k^*\}$ be the Bernoulli random variable with value 1 if the algorithm makes a mistake and 0 otherwise. Its expectation on the bandit problem $\nu$ is $\mathbb{P}_\nu(\hat{k} \ne k^*)$. Suppose that we run $n$ parallel experiments, and that in each experiment $i \in [n]$ we run successive rejects on the same bandit $\nu$ and compute the corresponding $B_i = \mathbb{I}\{\hat{k} \ne k^*\}$. Give a confidence interval for $\mathbb{P}_\nu(\hat{k} \ne k^*)$.
+    \part Implement successive rejects and uniform sampling. Plot the probability of error of both algorithms for $K = 20$ Bernoulli arms with $\mu_1 = 0.6$ and $\mu_k = 0.5$ for $k \ge 2$, for $T \in \{100, 500, 2000\}$. Plot confidence intervals and make sure to use enough experiments to get intervals with smaller width than the error probability.
+\end{parts}
+
+\end{questions}
+
+\paragraph{Fixed Confidence}
+\label{par:fixed_confidence}
+
+In \emph{fixed confidence} best arm identification, we consider only \emph{$\delta$-correct} algorithms, which satisfy $\mathbb{P}_\nu(\hat{k} \ne k^*) \le \delta$ for all tuples of distributions in our model. We are then looking for such algorithms with minimal expected stopping time $\mathbb{E}_\nu[\tau]$.
+
+All arm distributions in this section will be Gaussian with variance 1. All experiments will use 10 such arms, with means $(0.5, 0.6, 0.5, 0.4, \ldots, 0.4)$. All experiments will use $\delta = 0.01$.
+
+\emph{Stopping rule}. Let $\hat{*}_t = \arg\max_{k \in [K]} \hat{\mu}_{t,k}$. All algorithms will use the same stopping rule: stop when
+\begin{align*}
+\inf_{k \in [K] \setminus \{\hat{*}_t\}} \frac{1}{2} \frac{(\hat{\mu}_{t,\hat{*}_t} - \hat{\mu}_{t,k})^2}{\frac{1}{N_t^{\hat{*}_t}}+\frac{1}{N_t^k}}
+> \log \frac{1}{\delta} + 3 \log (1 + \log t) \: .
+\end{align*}
+$\tau$ is the first time such that this condition is satisfied.
+This is a heuristic approximation of the GLRT stopping rule seen in the course (the quantity on the left is equal to $\inf_{\lambda : *_\lambda \ne \hat{*}_t} \sum_{k=1}^K N_t^k \frac{1}{2}(\hat{\mu}_{t,k} -\lambda_{k})^2$).
+
+\begin{questions}
+\question In order to get a sub-linear regret, a regret minimization algorithms has to sample mostly the best arm. It could thus be transformed into a best arm identification algorithm.
+\begin{parts}
+    \part Implement the UCB algorithm for regret minimization, which samples the arm\\$k_t = \arg\max \hat{\mu}_{t-1,k} + \sqrt{\frac{2 \log t}{N_{t-1}^k}}$. Plot the mean over 100 experiments of the regret of UCB on the Gaussian bandit problem described above, for $t$ from 1 to 10000.
+    \part Implement a best arm identification algorithm that samples like UCB, stops according to the rule presented above, and returns the most played arm. Implement another algorithm that samples all arms uniformly, stops according to the rule presented above, and returns the arm with highest empirical mean. On a box plot, compare the stopping times of both algorithms. 
+\end{parts}
+
+\question Regret minimization algorithms don't explore enough to be good identification methods. We can modify them to explore more: this is the idea of \emph{Top-Two} algorithms. A Top-Two algorithm computes at each time $t$ a \emph{leader} $B_t \in [K]$ and a \emph{challenger} $C_t \in [K]\setminus\{B_t\}$, and then with probability $\beta \in (0,1)$ it samples the leader ($k_t = B_t$), and it samples the challenger with probability $1 - \beta$. It stops according to the rule presented above, and recommends the arm with highest empirical mean. We will use $\beta = 1/2$.
+\begin{parts}
+    \part Implement the TTUCB algorithm: its leader is the UCB arm $B_t = \arg\max \hat{\mu}_{t-1,k} + \sqrt{\frac{2 \log t}{N_{t-1}^k}}$ and its challenger is the arm for which it is hardest to say that it is worse, $C_t = \arg\min_{k \ne B_t} \frac{1}{2} \frac{(\hat{\mu}_{t-1,B_t} - \hat{\mu}_{t-1,k})^2}{\frac{1}{N_{t-1}^{B_t}}+\frac{1}{N_{t-1}^k}}$.
+    \part We added an exploration mechanism, the challenger, and it is possible that using UCB for the leader is not necessary anymore: we could simply select the empirical best arm, without the exploration bonus of UCB.
+    Implement the so-called EB-TC algorithm which uses $B_t = \arg\max \hat{\mu}_{t-1,k}$ and $C_t = \arg\min_{k \ne B_t} \frac{1}{2} \frac{(\hat{\mu}_{t-1,B_t} - \hat{\mu}_{t-1,k})^2}{\frac{1}{N_{t-1}^{B_t}}+\frac{1}{N_{t-1}^k}}$.
+    \part On a box plot, compare the stopping times of all 4 algorithms (UCB, uniform, TTUCB and EB-TC) and comment the results.
+\end{parts}
+
+\question (Bonus question) Thompson Sampling is another regret minimization algorithm. Implement a Top Two algorithm which uses Thompson Sampling. Give a pseudo-code of your algorithm. Compare that algorithm to the others on various bandit problems.
+
+\end{questions}
 \end{document}
